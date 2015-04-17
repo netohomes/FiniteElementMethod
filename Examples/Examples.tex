@@ -3,6 +3,26 @@
 \usepackage{bm}
 \usepackage{amsfonts}
 \usepackage{amsmath}
+\usepackage{graphics}
+
+
+
+
+% ----------------------------------------------------------------------------------------------------------------
+%Jc : Jacob comment
+%Proposed, diff command for derivatives:
+\newcommand{\diff}[2]{ 
+\frac{\mathrm{d}#1}{\mathrm{d}#2} 
+}
+%Example:
+% $TEST:  \diff{^2 f(x)}{x} $
+
+
+
+% ----------------------------------------------------------------------------------------------------------------
+
+
+
 
 \begin{document}
 
@@ -40,6 +60,10 @@ And our second order differential equation is
 
 This form is known as the \textbf{strong} form of the partial differential equation. Of course, later we'll have to proportionate the appropriate boundary conditions to get the function shown in \ref{eq:SecondOrderEq_SolExact}. Then let's say our problem is
 
+
+
+
+
 \begin{equation}
 \begin{array}{rl}
 \displaystyle
@@ -52,6 +76,13 @@ f'(x) n_x = \frac{d f(x)}{d x} n_x = 2 & \textrm{ on } x = 3
 \label{eq:Problem_StrongForm}
 \end{equation}
 
+
+\begin{figure}
+\includegraphics{figures/1_01_Objective_function.pdf}
+\end{figure}
+
+
+
 \subsection{The weak form}
 
 In order to use the finite element method to solve this equation, the first step is to write the differential equation in the \textbf{weak} or \textbf{variational} form. To do so, we require the Green's Theorem in 1D
@@ -61,13 +92,18 @@ In order to use the finite element method to solve this equation, the first step
 \]
 
 Because we'll be working in 1D, then we can use $d$ instead of $\partial$
+%Jc: What does each of them mean? 
+
+
 
 \begin{equation}
 \int_{\Omega} \frac{d}{d x} \frac{d u}{d x} \, w \, d\Omega + \int_{\Omega} \frac{d u}{d x} \frac{d w}{d x} \, d\Omega = \int_{\Gamma_D} \frac{d u}{d x} n_x \, w \, d\Gamma + \int_{\Gamma_N} \frac{d u}{d x} n_x \, w \, d\Gamma
 \label{eq:GreenTheorem_1D}
 \end{equation}
 
-As you can see the boundary $\Gamma$ was split into $\Gamma_D$ and $\Gamma_N$, which are the places where the \textbf{essential} (in this case Dirichlet) and \textbf{natural} (in this case Neumann) boundary conditions, respectively, are imposed. $w$ is known as \textbf{test function} and works as a weight to do an average version of the original (the strong form) differential equation.
+As you can see the boundary $\Gamma$ was split into $\Gamma_D$ and $\Gamma_N$, which are the places where the \textbf{essential} (in this case Dirichlet) % Jc: maybe, "also called Dirichlet"
+and \textbf{natural} (in this case Neumann) %Jc. Same here, maybe
+ boundary conditions, respectively, are imposed. $w$ is known as \textbf{test function} and works as a weight to do an average version of the original (the strong form) differential equation.
 
 Using the equations \ref{eq:GreenTheorem_1D} and \ref{eq:SecondOrderEq} and in our case $u = f(x)$
 
