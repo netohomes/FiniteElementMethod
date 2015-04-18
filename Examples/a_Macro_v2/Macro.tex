@@ -1,0 +1,327 @@
+
+%----jess----COMMON_PACKAGES----------------------------------------------------VVVV
+
+
+\usepackage{geometry}       		% See geometry.pdf to learn the layout options.
+\geometry{a4paper}                  	% ... or a4paper or a5paper or ... 
+
+\usepackage[english]{babel} 		% Paquete de idioma
+\usepackage{boiboites}			% Paquete para los recuadros de "teorema"
+\usepackage{booktabs} 			% To thicken table lines
+\usepackage{caption}			% To use captions without figure or table environment
+\usepackage{multicol}			% For using multicols environment
+\usepackage{verbatim}			% For verbatim environment
+\usepackage{place ins}			% To use \FloatBarrier
+\usepackage{color}				% To use colors
+\usepackage{cancel}				% To use \calcel and others (cancel equations)
+
+%\geometry{landscape}                	% Activate for rotated page geometry
+%\usepackage[parfill]{parskip}    	% Activate to begin paragraphs with an empty line rather 								% than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\usepackage{tcolorbox}			% For fancy boxes similar to theorem boxes
+\tcbuselibrary{breakable,skins}		% Required by some features of tcolorbox
+\usetikzlibrary{shadings}			% Required by some features of tcolorbox
+
+\usepackage{lipsum}				% Fills with "random text" for tryouts
+\usepackage{verbatim}			% Enables the comment environment
+\usepackage{fancyhdr}			% For fancy header and footer
+\usepackage{changepage}		% For reduced width
+
+%----jess----COMMON_PACKAGES------------------------------------------------------^^^^
+
+
+
+%----jess----PAGE_MARGINS--------------------------------------------------------------VVVV
+\setlength{\textheight }{670pt}		% Modifies text height
+\setlength{\voffset }{-15pt}		% Modifies a height parameter
+\setlength{\textwidth }{460pt}		% Modifies text width
+\setlength{\oddsidemargin }{-5pt}	% Modifies text width
+%----jess----PAGE_MARGINS---------------------------------------------------------------^^^^
+
+
+%----jess----THEOREM_BOX-----------------------------------------------------------------VVVV
+
+\newboxedtheorem[boxcolor=black,background=white,titlebackground=blue!20,titleboxcolor=black]{Ejercicio}{}{}
+
+%----jess----THEOREM_BOX-----------------------------------------------------------------^^^^
+
+
+%----jess----FANCY_BOXES-----------------------------------------------------------------VVVV
+% Box with colours and Title. Breakable across several pages
+\newtcolorbox{Fancybox}[2][]{%
+     	enhanced,
+	colback=blue!0!white,
+	%colframe=orange,
+	top=4mm,
+	bottom=4mm,
+     	enlarge top by=\baselineskip/2+1mm,
+     	enlarge top at break by=0mm,
+	pad at break=2mm,
+     	fontupper=\normalsize,			% Could use other size
+	%label={#3},					% as in float figures. Req. updating no. of param. 2->3
+	breakable,					% To be breakable across several pages.
+	overlay unbroken and first={%
+		\node[	rectangle,
+				rounded corners,
+				draw=black,
+				fill=blue!10!white,
+         			inner sep=1mm,
+				anchor=west,
+				%font=\small
+			]
+        	at ([xshift=4.5mm]frame.north west)
+		{\strut\textbf{
+				%Example 		% Name of the "boxes" series
+				%\thetcbcounter: 	% If a counter is used
+				#2				% Title
+				}
+		};
+	},
+	#1
+}%
+%----jess----FANCY_BOXES-----------------------------------------------------------------^^^^
+
+
+%----jess----COMMANDS--------------------------------------------------------------------VVVV
+\newcommand{\superscript}[1]{\ensuremath{^{\textrm{#1}}}}
+\newcommand{\subscript}[1]{\ensuremath{_{\textrm{#1}}}}
+
+% Arrays
+\newcommand{\jarp}[2]{\left( \begin{array}{#1} #2 \end{array}\right)}
+\newcommand{\jarc}[2]{\left[ \begin{array}{#1} #2 \end{array}\right]}
+
+% Separator
+\newcommand{\jacseparator}{		\vspace{0.4cm}		
+\begin{center}	
+\rule{1cm}{0.1pt} \\		\rule{2 cm}{0.2pt} \\		\rule{1cm}{0.1pt}
+\end{center}					\vspace{0.4cm}		}
+
+
+
+% insert a centered figure with caption and description AND WIDTH
+% parameters 1:filename, 2:title, 3:description and label, 4: textwidth
+% textwidth 1 means as text, 0.5 means half the width of the text
+\newcommand{\figuremacroJ}[5]{
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=#4\textwidth]{#1}
+		\caption[#2]{\textbf{#2} #3}
+		\label{#5}
+	\end{figure}
+}
+
+\newcommand{\figmacroJ}[5]{
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[scale=#4]{#1}
+		\caption[#2]{\textbf{#2} #3}
+		\label{#5}
+	\end{figure}
+}
+
+
+\newcommand{\figmacroubicJ}[6]{
+	\begin{figure}[#6]
+		\centering
+		\includegraphics[scale=#4]{#1}
+		\caption[#2]{\textbf{#2} #3}
+		\label{#5}
+	\end{figure}
+}
+
+
+%Macro to include an image in a specific position (Not Float)
+\newcommand{\graphicsmacroJ}[5]{
+	\noindent
+	\ \\
+	\begin{minipage}{\textwidth}
+		\centering
+		\includegraphics[scale=#4]{#1}
+		\captionof{figure}[#2]{\textbf{#2} #3} \label{#5}
+	\end{minipage}
+	
+	\ \\
+}
+
+%Macro to include an image en a specific position with text next to it
+%The text is introduced in #1 position 
+\newcommand{\TgraphicsmacroJ}[6]{
+
+	\noindent
+	\begin{minipage}{\textwidth}
+		#1  \\ \par
+		\centering
+		\includegraphics[scale=#5]{#2}
+	\captionof{figure}[#3]{\textbf{#3} #4} \label{#6}
+	\end{minipage}
+	\ \\
+}
+
+
+%Macro for partial derivatives
+\newcommand{\jpar}[2]{
+	\frac{\partial{#1}}{\partial{#2}}
+}
+
+%Macro for equations
+\newcommand{\jbe}[1]{
+	\begin{equation}
+	#1
+	\end{equation}
+}
+
+%----jess----COMMANDS--------------------------------------------------------------------^^^^
+
+
+
+%----unko----FIGURES-----------------------------------------------------------------------VVVV
+% inserts a figure with wrapped around text; only suitable for NARROW figs
+% o is for outside on a double paged document; others: l, r, i(inside)
+% text and figure will each be half of the document width
+% note: long captions often crash with adjacent content; take care
+% in general: above 2 macro produce more reliable layout
+\newcommand{\figuremacroN}[3]{
+	\begin{wrapfigure}{o}{0.5\textwidth}
+		\centering
+		\includegraphics[width=0.48\textwidth]{#1}
+		\caption[#2]{{\small\textbf{#2} - #3}}
+		\label{#1}
+	\end{wrapfigure}
+}
+
+%----unko----FIGURES-----------------------------------------------------------------------^^^^
+
+%----mutt----FIGURES-----------------------------------------------------------------------VVVV
+
+%El siguiente macro sirve para darle un cuadro tipo teorema a algun texto
+%utilizado en ejercicios resueltos.
+%Solo debe ponerse el texto dentro del parentesis despues de \cuadtext{}
+\newcommand{\cuadtext}[2]{
+    \begin{figure}[htbp]
+    \begin{theo #1}
+    #2
+    \end{theo #1}
+    \end{figure}
+}
+
+%El siguiente macro es utilizado en conjunto con el anterior
+%sirve para agregar imagenes dentro de cuadros de texto
+%notar que es el mismo que \figmacroJ solo que sin el ambiente
+%figure que tiene conflicto al usar el ambiente theo
+\newcommand{\figmacroCT}[5]{	
+		\centering
+		\includegraphics[scale=#4]{#1}
+		\caption[#2]{\textbf{#2} #3}
+		\label{#5}
+}
+
+%----mutt----FIGURES-----------------------------------------------------------------------^^^^
+
+%---- jess----ADITIONAL_FILE_SPECIFIC---------------------------------------------VVVV
+
+% Declaration of a question type
+
+\newtcolorbox{Question}[2][]{
+	colback=blue!0!white,		% 	colback=blue!5!white,
+	colframe=blue!75!black,
+	center title, 				enhanced,			
+	shadow={2mm}{-1mm}{0mm}{black!50!white},
+	title=\Large #2
+}
+
+% Declaration of a question type
+
+
+% Declaration of new Shades
+\newtcbox{\xmybox}[1][blue]{	nobeforeafter,			tcbox raise base, 
+						arc=7pt,				colback=#1!10!white,
+						colframe=#1!50!black,	
+						before upper={\rule[-3pt]{0pt}{10pt}},
+						boxrule=1pt,			boxsep=0pt,		
+						left=6pt,				right=6pt,
+						top=2pt,				bottom=2pt}
+% Declaration of new Shades
+
+% New Fancybox
+
+% Box with colours and Title. Breakable across several pages
+\newtcolorbox{Fancybox2}[2][]{%
+     	enhanced,
+	colback=blue!0!white,
+	%colframe=orange,
+	top=4mm,
+	bottom=4mm,
+     	enlarge top by=\baselineskip/2+1mm,
+     	enlarge top at break by=0mm,
+	pad at break=2mm,
+     	fontupper=\normalsize,			% Could use other size
+	%label={#3},					% as in float figures. Req. updating no. of param. 2->3
+	breakable,					% To be breakable across several pages.
+	overlay unbroken and first={%
+		\node[	rectangle,
+				rounded corners=7pt,
+				%arc=7pt,
+				draw=black,
+				fill=blue!10!white,
+         			inner sep=1mm,
+				%anchor=west,
+				anchor=center,
+				%font=\small
+			]
+        	%at ([xshift=4.5mm]frame.north west)
+		at (frame.north)
+		{\strut\textbf{
+				%Example 		% Name of the "boxes" series
+				%\thetcbcounter: 	% If a counter is used
+				#2				% Title
+				}
+		};
+	},
+	#1
+}%
+
+% New Fancybox
+
+% White box
+\newtcolorbox{whitebox_notcentred}[1]{
+	enhanced, 			colback=blue!0!white,
+	left=0mm,right=0mm, 	width=\textwidth,
+	top=0mm,
+	bottom=0mm,
+	%colframe=blue!0!white,
+	#1}
+
+\newenvironment{whitebox}  
+{ \begin{center}	\begin{whitebox_notcentred}{}} 
+{ \end{whitebox_notcentred}  \end{center}}
+
+
+%personalized width
+
+\newenvironment{mywidth}{\begin{adjustwidth}{2cm}{2cm}}{\end{adjustwidth}}
+
+
+%---- jess----ADITIONAL_FILE_SPECIFIC---------------------------------------------^^^^
+
+\newcommand{\langl}{\begin{picture}(4.5,7)
+\put(1.1,2.5){\rotatebox{60}{\line(1,0){5.5}}}
+\put(1.1,2.5){\rotatebox{300}{\line(1,0){5.5}}}
+\end{picture}}
+\newcommand{\rangl}{\begin{picture}(4.5,7)
+\put(.9,2.5){\rotatebox{120}{\line(1,0){5.5}}}
+\put(.9,2.5){\rotatebox{240}{\line(1,0){5.5}}}
+\end{picture}}
+
+
+
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "~/Documents/LaTeX/CUEDThesisPSnPDF/thesis"
+%%% End: 

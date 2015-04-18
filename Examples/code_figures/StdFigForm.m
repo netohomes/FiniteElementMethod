@@ -1,4 +1,4 @@
-function [c,h,v] = StdFigForm(handle,Title, xlab, ylab);
+function [c,h,v] = StdFigForm(Title, xlab, ylab);
 
 %LEYENDS NAMES
  c=title(Title);
