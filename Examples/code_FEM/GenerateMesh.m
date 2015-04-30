@@ -8,7 +8,7 @@ function[T, X, nodes_Dirich, nodes_Newman, y_Dirich, yp_Newman, h] ...
     
     Domain_boundary_left = 1;
     Domain_boundary_right = 3;
-    nelem = 100;
+nelem = 100;
     
 
     % values set as funciton of basic variables
