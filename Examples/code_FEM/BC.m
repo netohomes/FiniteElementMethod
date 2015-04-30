@@ -8,8 +8,8 @@ function [K, F] = BC(K, F, nodes_Dirich, nodes_Newman, y_Dirich, yp_Newman )
     
 
         K(:,nodes_Dirich) = zeros(size(K,1),size(nodes_Dirich,1));
-        K(nodes_Dirich,:) = zeros(size(nodes_Dirich,1),size(K,1));
-        K(nodes_Dirich, nodes_Dirich) = eye(size(nodes_Dirich,1));
+    K(nodes_Dirich,:) = zeros(size(nodes_Dirich,1),size(K,1));
+    K(nodes_Dirich, nodes_Dirich) = eye(size(nodes_Dirich,1));
 
     
     F(nodes_Dirich) = y_Dirich;

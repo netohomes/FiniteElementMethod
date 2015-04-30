@@ -8,7 +8,7 @@ function[T, X, nodes_Dirich, nodes_Newman, y_Dirich, yp_Newman, h] ...
     
     Domain_boundary_left = 1;
     Domain_boundary_right = 3;
-    nelem = 10;
+    nelem = 100;
     
 
     % values set as funciton of basic variables
@@ -27,12 +27,12 @@ function[T, X, nodes_Dirich, nodes_Newman, y_Dirich, yp_Newman, h] ...
     
     %%Dirichlet boundary conditions:
     nodes_Dirich = [1];
-    y_Dirich = [0];
+y_Dirich = [0];
     
     
     %%Newman boundary conitions:
-    nodes_Newman = [1];
-    yp_Newman = [5];
+    nodes_Newman = [nelem+1];
+    yp_Newman = [2];
 
     
     

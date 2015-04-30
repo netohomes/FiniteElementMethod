@@ -28,9 +28,9 @@ plot(X,u)
 
 hold on;
 
-% x=linspace(0.5,3.5,50);
-% plot(x,x.^3-6*x.^2+11*x-6);
-% 
+x=linspace(0.5,3.5,50);
+plot(x,x.^3-6*x.^2+11*x-6);
+
   set(gcf, 'Color', [1,1,1]);
   set(gca,'YGrid','on','XGrid','on');
  
