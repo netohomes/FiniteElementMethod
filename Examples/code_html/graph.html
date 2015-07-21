@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+
+<head><title>Canvas code example</title>
+	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.95/jsxgraphcore.js"></script>
+	<!-- <script type="text/javascript" src="http://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js"></script> -->
+	<link href="jsxgraph.css" rel="stylesheet" type="text/css" />
+	<!-- <script src = "graph2.js"> </script> -->
+    <script type="text/javascript">
+        function GenerateMesh( nElems, xMin, xMax, mesh ){
+            mesh.nNodesElem = 2;
+            // Number of elemnts and points
+            mesh.nPoints = nElems + 1;
+            mesh.nElems = nElems;
+            // Elemen's size
+            var h = ( xMax - xMin ) / nElems;
+            // Memoru for point's coordinates and conectivity
+            mesh.coord = new Array( mesh.nPoints );
+            mesh.conec = new Array( mesh.nElems );
+            for( var i = 0; i < mesh.nElems; i++ ){
+                mesh.conec[i] = new Array(mesh.nNodesElem);
+            }
+            // Coordinates
+        	for( var i = 0; i < mesh.nPoints; i++ ){
+                mesh.coord[i] = xMin + h * i;
+            }
+            // Conectivity
+            for( var i = 0; i < mesh.nElems; i++ ){
+                mesh.conec[i][0] = i;
+                mesh.conec[i][1] = i + 1;
+            }            
+            //printArray1D( mesh.coord, mesh.nPoints, "Mesh:<br>" );
+        }
+        function assemblySystemEq( systemEq, mesh ){
+            // Size
+            systemEq.m = mesh.nPoints;
+            systemEq.n = mesh.nPoints;
+            // It is a tridiagonal symmetric matrix, so only the values on the
+            // diagonal and above of it are need to be stored
+            systemEq.K1 = new Array( mesh.nPoints );
+            systemEq.K2 = new Array( mesh.nPoints );
+            // Right hand side vector
+            systemEq.F = new Array( mesh.nPoints );
+        	for( var i = 0; i < mesh.nPoints; i++ ){
+                systemEq.K1[i] = 0.0;
+                systemEq.K2[i] = 0.0;
+                systemEq.F[i]  = 0.0;
+            }
+            // Assembly
+            var Ke = [ [0.0,0.0], [0.0,0.0] ];
+            var Fe = [ 0.0, 0.0 ];
+            var le = 0.0;
+            for( var elem = 0; elem < mesh.nElems; elem++ ){
+                n1 = mesh.conec[elem][0];
+                n2 = mesh.conec[elem][1];
+                x1 = mesh.coord[n1];
+                x2 = mesh.coord[n2];
+                le = x2 - x1;
+                // Element's matrix
+                Ke[0][0] =  1.0 / le;
+                Ke[0][1] = -1.0 / le;
+                Ke[1][0] = -1.0 / le;
+                Ke[1][1] =  1.0 / le;
+                // Element's right hand side vector
+                Fe[0] = - ( -2.0*x1*x1 + x1*x2 + 6.0*x1 + x2*x2 - 6.0*x2 );
+                Fe[1] = - ( -2.0*x1*x1 + x1*x2 + 6.0*x1 + x2*x2 - 6.0*x2 );
+                systemEq.K1[n1] = systemEq.K1[n1] + Ke[0][0];
+                systemEq.K1[n2] = systemEq.K1[n2] + Ke[1][1];
+                if( n2 < systemEq.m ){
+                    systemEq.K2[n2] = systemEq.K2[n2] + Ke[1][0];
+                }
+                systemEq.F[n1] = systemEq.F[n1] + Fe[0];
+                systemEq.F[n2] = systemEq.F[n2] + Fe[1];
+            }
+            
+        }
+        function imposeDirichletBC( node, value, systemEq ){
+            if( node >= 0 && node < systemEq.m ){
+                systemEq.K1[node] = 1.0;
+                if( node + 1 < systemEq.m && node + 1 < systemEq.m - 1 ){
+                    systemEq.F[node+1] = systemEq.F[node+1] - systemEq.K2[node+1]*value;
+                }
+                if( node - 1 > 0 && node + 1 < systemEq.m - 1 ){
+                    systemEq.F[node-1] = systemEq.F[node-1] - systemEq.K2[node+1]*value;
+                }
+                systemEq.K2[node+1] = 0.0;
+                systemEq.F[node] = value;
+            }
+        }
+        function addNeumannBC( node, value, systemEq ){
+            if( node >= 0 && node < systemEq.m ){
+                systemEq.F[node] = systemEq.F[node] + value;
+            }
+        }
+        function solveSystemEq( systemEq ){
+            // Solve a tridiagonal simmetric system of equation by factorizing
+            // in the form LDL'.
+	        var n = systemEq.m;
+            D = new Array( n );
+            L = new Array( n );
+	        // Factorize LDL'
+            D[0] = systemEq.K1[0];
+            L[0] = systemEq.K2[1] / D[0];
+	        for( var i = 1; i < n; i++ ){
+                D[i] = systemEq.K1[i] - D[i-1] * L[i-1] * L[i-1];
+                if( i < n - 1 ){
+                    L[i] = systemEq.K2[i+1] / D[i];
+                }
+	        }
+            //printArray1D( D, n, "D:<br>" );
+            //printArray1D( L, n, "L:<br>" );
+	        // Solve Ly = b
+	        // In this case y_i = ( b_i - L_(i-1) * D_(i-1) ) / D_(i)
+            y = new Array( n );
+            y[0] = systemEq.F[0] / D[0];
+	        for( var i = 1; i < n; i++ ){
+                y[i] = ( systemEq.F[i] - L[i-1] * D[i-1] * y[i-1] ) / D[i];
+            }
+	        // Solve L'x = y
+	        // In this case x_i = y_i - L_i * x_(i+1)
+            systemEq.x = new Array( n );
+	        systemEq.x[n-1] = y[n-1];
+	        for( var i = n - 2; i >= 0; i-- ){
+		        systemEq.x[i] = y[i] - L[i] * systemEq.x[i+1];            
+            }
+        }
+        function drawSolution( ctx, systemEq, mesh ){
+	        ctx.beginPath( );
+	        ctx.lineWidth = 1.0;
+	        ctx.strokeStyle = "rgb(11,153,11)";
+	        for( var i = 0; i < mesh.nPoints - 1; i++ ){
+		        xx = mesh.coord[i];
+		        yy = systemEq.x[i];
+		        ctx.moveTo( mesh.coord[i], systemEq.x[i] );
+		        ctx.lineTo( mesh.coord[i+1], systemEq.x[i+1] );
+	        }
+        }
+        function printArray1D( a, size, message ){
+            document.write( message );
+            for( var i = 0; i < size; i++ ){
+                document.write( a[i] + "  " );
+            }
+            document.write( "<br>" );
+        }
+        function printArray2D( a, m, n, message ){
+            document.write( message );
+            for( var i = 0; i < m; i++ ){
+                for( var j = 0; j < n; j++ ){
+                    document.write( a[i][j] + "  " );
+                }
+                document.write( "<br>" );
+            }
+            document.write( "<br>" );
+        }
+    </script>
+</head>
+
+<body>
+	<div id="box" class="jxgbox" style="width:900px; height:400px;"></div>
+	<!-- <button type="button" onclick="draw()">Try it</button> -->
+	<!-- <button type="button" onclick="clearCanvas()">Clear</button> -->
+	<!-- <canvas id="canvas" width="702" height="400"></canvas> -->
+	<script type="text/javascript">
+		
+		var width = 900;
+		var height = 400;
+		var originX = 0.5 * width;
+		var originY = 0.5 * height;
+		var unitLengthX = 225;
+		var unitLengthY = 150;
+
+		board = JXG.JSXGraph.initBoard('box',{originX:width*0.0, originY:height*0.5, unitX:unitLengthX, unitY:unitLengthY, axis:true});
+		var graph = board.create( 'functiongraph', [function(x){ return x*x*x - 6*x*x + 11*x - 6;}, 0.5, 3.5] );
+
+        var mesh = { nNodesElem: 0 };
+        var mesh = { coord: 0.0 };
+        var mesh = { conec:   0 };
+        var mesh = { nElems:  0 };
+        var mesh = { nPoints: 0 };
+        GenerateMesh( 100, 1.0, 3.0, mesh );
+        //printArray1D( mesh.coord, mesh.nPoints, "Coordinates:<br>" );
+        //printArray2D( mesh.conec, mesh.nElems, mesh.nNodesElem, "Conectivity:<br>" );
+
+        var systemEq = { m: 0 };
+        var systemEq = { n: 0 };
+        var systemEq = { K1: 0.0 };
+        var systemEq = { K2: 0.0 };
+        var systemEq = { F:  0.0 };
+        var systemEq = { x:  0.0 };
+        assemblySystemEq( systemEq, mesh );
+
+        //printArray1D( systemEq.F,  systemEq.m, "F:<br>" );
+        //printArray1D( systemEq.K1, systemEq.m, "K1:<br>" );
+        //printArray1D( systemEq.K2, systemEq.m, "K2:<br>" );
+
+        imposeDirichletBC( 0, 0.0, systemEq );
+        addNeumannBC( mesh.nPoints - 1, 2.0, systemEq );
+
+        //printArray1D( systemEq.F,  systemEq.m, "F:<br>" );
+        //printArray1D( systemEq.K1, systemEq.m, "K1:<br>" );
+        //printArray1D( systemEq.K2, systemEq.m, "K2:<br>" );
+        
+        solveSystemEq( systemEq );
+
+        //printArray1D( systemEq.x, systemEq.m, "Solution:<br>" );
+
+        for( var i = 0; i < mesh.nPoints - 1; i++ ){
+            board.create( 'line', [[mesh.coord[i],systemEq.x[i]],[mesh.coord[i+1],systemEq.x[i+1]]], {straightFirst:false, straightLast:false, strokeWidth:2, strokeColor: "rgb(11,153,11)" } );
+            board.create( 'point', [ mesh.coord[i], systemEq.x[i] ], { name:'', color: "rgb(11,153,11)" } );
+        }
+
+	</script>
+</body>
+
+</html>
